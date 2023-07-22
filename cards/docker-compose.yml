@@ -1,0 +1,47 @@
+services:
+
+  configserver:
+    image: bankin123/configserver:latest
+    ports:
+      - "8071:8071"
+    networks:
+      - bank-network
+
+  eurekaserver:
+    image: bankin123/eurekaserver:latest
+    ports:
+      - "8070:8070"
+    networks:
+      - bank-network
+    depends_on:
+      - configserver
+    depoly:
+      restart-policy:
+      condition: on-failure
+      delay: 5s
+      max_attempts: 3
+      window: 120s
+    enviroment:
+    SPRING_PROFILE_ACTIVE: default
+    SPRING_CONFIG_IMPORT: configserver:http://configserver:8071
+    
+    cards:
+     image: bankin123/cards:latest
+     ports:
+      - "8070:8070"
+     networks:
+      - bank-network
+     depends_on:
+       - configserver
+       - configserver
+     delay: 5s
+     max_attempts: 3
+     window: 120s
+     enviroment:
+     SPRING_PROFILE_ACTIVE: default
+     SPRING_CONFIG_IMPORT: configserver:http://configserver:8071
+     
+networks:
+ bank-network: {}
+     
+     
